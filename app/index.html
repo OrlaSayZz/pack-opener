@@ -248,6 +248,7 @@ nav.tabs .nb{position:absolute;top:5px;left:calc(50% + 5px);min-width:17px;heigh
 .cosmos{mix-blend-mode:color-dodge;opacity:.45;background:url(cosmos.svg) 0 0/400px 300px;background-position:calc(var(--mx) * 1.6) calc(var(--my) * 1.2);animation:none}
 .cosmos2{mix-blend-mode:color-dodge;opacity:.25;background:url(cosmos.svg) 0 0/260px 195px;background-position:calc(var(--mx) * -1.2) calc(var(--my) * -0.9);filter:hue-rotate(90deg)}
 .viewer .vclose,.ov .skip{z-index:5}
+.exglow{mix-blend-mode:color-dodge;opacity:calc(.18 + var(--o)*.32);background-image:radial-gradient(circle at var(--mx) var(--my),#ff7ab8 0%,#ffd36b 14%,#7dffcf 28%,#7ac8ff 42%,rgba(0,0,0,0) 62%)}
 @media (max-width:440px){.brand{font-size:15px}.res{gap:5px}.pill{padding:4px 8px;font-size:12px}.topin{gap:8px}}
 @media (prefers-reduced-motion:reduce){.pack,.pack::after,.bigpack .glint,.rainbow,.rainbow2,.goldsheen,.goldband,.silverband,.spshine,.cosmos,.stack .aura.on{animation:none}}
 </style>
@@ -538,21 +539,21 @@ function tick(){
 }
 const MISSIONS = {
   day:[
-    {id:"d-open3", ic:"🎴", t:"Ouvrir 3 boosters", get:()=>S.day.open, goal:3, rew:{sab:1}},
+    {id:"d-open3", ic:"🎴", t:"Ouvrir 3 boosters", get:()=>S.day.open, goal:3, rew:{pet:20}},
     {id:"d-open8", ic:"📦", t:"Ouvrir 8 boosters", get:()=>S.day.open, goal:8, rew:{pet:30}},
     {id:"d-pick", ic:"🌙", t:"Faire le Choix de minuit", get:()=>S.day.pick?1:0, goal:1, rew:{pet:15}},
     {id:"d-new", ic:"✨", t:"Obtenir 2 nouvelles cartes", get:()=>S.day.newc, goal:2, rew:{pet:20}},
     {id:"d-view", ic:"🔍", t:"Regarder 5 cartes en grand", get:()=>S.day.view, goal:5, rew:{pet:10}},
   ],
   week:[
-    {id:"w-open", ic:"🎴", t:"Ouvrir 30 boosters", get:()=>S.week.open, goal:30, rew:{sab:3}},
+    {id:"w-open", ic:"🎴", t:"Ouvrir 30 boosters", get:()=>S.week.open, goal:30, rew:{sab:2}},
     {id:"w-new", ic:"✨", t:"Obtenir 10 nouvelles cartes", get:()=>S.week.newc, goal:10, rew:{pet:120}},
-    {id:"w-hi", ic:"💎", t:"Tirer 3 cartes ex ou mieux", get:()=>S.week.hi, goal:3, rew:{sab:2}},
+    {id:"w-hi", ic:"💎", t:"Tirer 3 cartes ex ou mieux", get:()=>S.week.hi, goal:3, rew:{pet:100}},
     {id:"w-pick", ic:"🌙", t:"Faire 5 Choix de minuit", get:()=>S.week.pick, goal:5, rew:{pet:60}},
     {id:"w-days", ic:"📅", t:"Jouer 4 jours différents", get:()=>S.week.days.length, goal:4, rew:{pet:80}},
   ]
 };
-const BONUS = {day:{id:"d-all", t:"Toutes les missions du jour", rew:{pet:20,sab:1}}, week:{id:"w-all", t:"Toutes les missions de la semaine", rew:{pet:150,sab:3}}};
+const BONUS = {day:{id:"d-all", t:"Toutes les missions du jour", rew:{pet:20,sab:1}}, week:{id:"w-all", t:"Toutes les missions de la semaine", rew:{pet:150,sab:2}}};
 const mbox = per => per==="day"?S.day:S.week;
 function claimable(){ let n=0; for(const per of ["day","week"]){ const b=mbox(per); MISSIONS[per].forEach(m=>{ if(!b.done[m.id]&&m.get()>=m.goal) n++; }); if(!b.done[BONUS[per].id] && MISSIONS[per].every(m=>b.done[m.id])) n++; } return n; }
 function untilTxt(ms){ const h=Math.floor(ms/36e5), m=Math.floor(ms/6e4)%60; if(h>=24) return `${Math.floor(h/24)} j ${h%24} h`; return h ? `${h} h ${String(m).padStart(2,"0")}` : `${Math.max(1,m)} min`; }
@@ -583,6 +584,7 @@ $("sabBtn").onclick=()=>{ if(S.sab<1||S.stock>=MAXS) return; S.sab--; S.last -= 
 let cur = null, revealIdx = 0, opening = false;
 const AURA = {R:"radial-gradient(circle,#dfe6ff,#8fa3ff00 70%)",EX:"radial-gradient(circle,#c38bff,#c38bff00 70%)",ESC:"radial-gradient(circle,#b9b0f5,#b9b0f500 70%)",AR:"radial-gradient(circle,#7ad7ff,#7ad7ff00 70%)",SP:"radial-gradient(circle,#ffd84d,#ffd84d00 70%)",GOLD:"radial-gradient(circle,#ffe08a,#ffb80000 70%)"};
 function openBooster(){
+  holdAch=true;
   regen(); if(S.stock<1 || opening) return;
   if(S.stock>=MAXS) S.last = Date.now();
   S.stock--; S.opened++; S.day.open++; S.week.open++;
@@ -624,6 +626,7 @@ $("stack").onclick=()=>{
 };
 $("skipBtn").onclick=()=>{ if(!$("bigpack").hidden && !$("bigpack").classList.contains("open")) tearDone(true); else showSummary(); };
 function showSummary(){
+  holdAch=false; setTimeout(flushAch,600);
   $("stack").hidden=true; $("bigpack").hidden=true; $("ovHint").hidden=true; $("counter").textContent=""; $("skipBtn").hidden=true;
   $("sumTitle").textContent = cur.god ? "Booster de minuit !" : "Ton booster";
   $("sumGrid").innerHTML = cur.add.res.map((x,i)=>{ const c=BY[x.n]; return `<button class="tile" data-n="${x.n}" style="animation-delay:${i*80}ms"><span class="newtag">${x.isNew?"NOUVEAU":""}</span><div class="ph" style="animation-delay:${i*90}ms"><img src="cards/${c.f}" alt="${c.name}"></div><div class="meta"><b>${c.name}</b><span>${label(c)}</span></div>${x.pet?`<span class="gain">+${x.pet} pétales</span>`:""}</button>`; }).join("");
@@ -632,7 +635,7 @@ function showSummary(){
   $("againBtn").disabled = S.stock<1; $("againBtn").textContent = S.stock<1 ? "Plus de booster pour l'instant" : `Ouvrir le suivant (${S.stock})`;
   $("summary").hidden=false;
 }
-function closeOv(){ $("ov").hidden=true; document.body.style.overflow=""; opening=false; renderAll(); }
+function closeOv(){ holdAch=false; flushAch(); $("ov").hidden=true; document.body.style.overflow=""; opening=false; renderAll(); }
 $("closeOv").onclick=closeOv;
 $("againBtn").onclick=()=>{ opening=false; openBooster(); };
 $("openBtn").onclick=openBooster;
@@ -651,7 +654,7 @@ $("pickBtn").onclick=()=>{
       ready=true; }, 900);
   }, 2600);
   row.onclick=e=>{ const p=e.target.closest(".pk"); if(!p||!ready||S.day.pick) return;
-    ready=false; const n=Number(p.dataset.n); S.day.pick=true; S.week.pick++; S.st.picks++; const r=addCards([n]); save();
+    ready=false; holdAch=true; setTimeout(()=>{ holdAch=false; flushAch(); },1400); const n=Number(p.dataset.n); S.day.pick=true; S.week.pick++; S.st.picks++; const r=addCards([n]); save();
     p.classList.remove("flip"); setTimeout(()=>row.querySelectorAll(".pk").forEach(x=>x.classList.remove("flip")),700);
     $("pickHint").textContent = `Tu gagnes ${BY[n].name} (${label(BY[n])})${r.res[0].isNew?" — nouvelle carte !":` — doublon, +${r.pet} pétales`}`; $("pickEnd").hidden=false; renderRes(); };
 };
@@ -680,7 +683,7 @@ function fxFor(c){
   const foil=t=>`<div class="fx full" style="${holeClip(t,45.9)}"><div class="fx full rainbow" style="opacity:.12"></div><div class="fx full silverband"></div></div>`;
   if(r==="R") return foil(7.84);
   if(r==="DR") return c.rr==="R"?foil(8.98):"";
-  if(r==="EX") return `<div class="fx rainbow" ${box({l:5.24,t:8.3,w:89.52,h:47.27})}></div><div class="fx rainbow2" ${box({l:5.24,t:8.3,w:89.52,h:47.27})}></div><div class="fx arglow" ${box({l:5.24,t:8.3,w:89.52,h:47.27})}></div>`;
+  if(r==="EX") return `<div class="fx" ${box({l:5.24,t:8.3,w:89.52,h:47.27},"overflow:hidden")}><div class="fx full rainbow" style="opacity:.12"></div><div class="fx full rainbow2" style="opacity:.55"></div><div class="fx full exglow"></div><div class="fx full silverband" style="opacity:.85"></div></div>`;
   if(r==="PR") return c.fx==="cosmos" ? `<div class="fx" ${box(WIN,"overflow:hidden")}><div class="fx full cosmos"></div><div class="fx full cosmos2"></div><div class="fx full rainbow" style="opacity:.14"></div></div>` : `<div class="fx arglow full"></div><div class="fx rainbow2 full" style="opacity:.10"></div>`;
   if(r==="SP") return `<div class="fx spshine" ${box({l:5.24,t:8.98,w:89.52,h:47.95})}></div><div class="fx goldband full" style="opacity:.6"></div>`;
   if(r==="ESC") return `<div class="fx rainbow full" style="opacity:.16"></div><div class="fx rainbow2 full" style="opacity:.14"></div><div class="fx arglow full"></div>`;
@@ -787,7 +790,9 @@ const ACHS = [
   A("Divers","pt5k","🌸","Cueilleur de pétales","Gagner 5 000 pétales au total",()=>S.st.petTot,5000,{sab:2}),
 ];
 function pct(){ const b=CARDS.filter(c=>c.n<=142); return b.filter(c=>owned(c.n)).length/b.length*100; }
-function checkAch(){ ACHS.forEach(a=>{ if(!S.ach[a.id] && a.v()>=a.g){ S.ach[a.id]=Date.now(); give(a.rew); setTimeout(()=>toast(`Succès : ${a.t} !`),400); } }); }
+function checkAch(){ ACHS.forEach(a=>{ if(!S.ach[a.id] && a.v()>=a.g){ S.ach[a.id]=Date.now(); give(a.rew); achQ.push(`Succès : ${a.t} !`); } }); if(!holdAch) flushAch(); }
+let achQ=[], holdAch=false, achBusy=false;
+function flushAch(){ if(achBusy||holdAch||!achQ.length) return; achBusy=true; setTimeout(()=>{ achBusy=false; if(holdAch){ return; } const m=achQ.shift(); if(m){ toast(m); if(achQ.length) setTimeout(flushAch,2800); } },500); }
 
 // profil
 let AV=null; try{ AV=localStorage.getItem("ldm-avatar"); }catch(e){}
