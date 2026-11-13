@@ -317,7 +317,6 @@ nav.tabs .nb{position:absolute;top:5px;left:calc(50% + 5px);min-width:17px;heigh
     <!-- BOUTIQUE -->
     <section class="view" id="v-shop" hidden>
       <h1>Boutique</h1>
-      <div class="card-box"><div class="mhead"><h2>Sélection du jour</h2><span class="cd" id="shopCd"></span></div><div class="offers" id="offers"></div></div>
       <div class="grid2">
         <div class="card-box"><h2>Échange</h2><div id="sabX"></div></div>
         <div class="card-box">
@@ -720,13 +719,6 @@ document.addEventListener("keydown",e=>{ if(!$("viewer").hidden){ if(e.key==="Es
 
 // ---------- Boutique ----------
 function renderShop(){
-  $("shopCd").textContent="Nouvelle sélection dans "+untilTxt(nextDay());
-  const it=S.shop.items;
-  $("offers").innerHTML = it.length ? it.map(n=>{ const c=BY[n], cost=COST[rar(c)], bought=S.shop.bought.includes(n), got=owned(n)>0, can=!bought&&!got&&S.pet>=cost;
-      const btn = bought?`<button class="btn sm ghost" disabled>Achetée ✓</button>`: got?`<button class="btn sm ghost" disabled>Déjà obtenue</button>`:`<button class="btn sm${can?"":" ghost"}" data-buy="${n}" ${can?"":"disabled"}>🌸 ${cost.toLocaleString("fr-FR")}</button>`;
-      return `<div class="offer${bought||got?" got":""}"><div class="ph"><img src="thumbs/${c.f}" alt=""><span class="rtag">${LABEL[rar(c)]}</span></div><div><div class="nm">${c.name}</div><div class="rr">${pad(c.n)} · ${label(c)}</div></div>${btn}</div>`; }).join("")
-    : `<p class="muted">Collection complète !</p>`;
-  $("offers").querySelectorAll("[data-buy]").forEach(b=>b.onclick=()=>{ const c=BY[b.dataset.buy]; const cost=COST[rar(c)]; if(S.pet<cost||owned(c.n)||S.shop.bought.includes(c.n)) return; S.pet-=cost; S.shop.bought.push(c.n); S.st.buys++; addCards([c.n]); save(); toast(`${c.name} rejoint ton classeur !`); renderShop(); renderRes(); });
   const can = !S.shop.sab && S.pet>=SAB_PRICE;
   $("sabX").innerHTML = `<div class="xrow"><span class="mi" aria-hidden="true">⏳</span><div><b>1 sablier</b><div class="muted" style="font-size:12.5px">1 par jour</div></div><button class="btn sm${can?"":" ghost"}" id="buySab" ${can?"":"disabled"}>${S.shop.sab?"Acheté ✓":"🌸 "+SAB_PRICE}</button></div>`;
   $("buySab").onclick=()=>{ if(S.shop.sab||S.pet<SAB_PRICE) return; S.pet-=SAB_PRICE; S.sab++; S.shop.sab=true; S.st.buys++; save(); toast("+1 sablier"); renderShop(); renderRes(); };
@@ -740,54 +732,54 @@ $("codeForm").addEventListener("submit",e=>{ e.preventDefault(); const code=$("c
 const cnt = r => POOLS[r].filter(owned).length;
 const DRS = CARDS.filter(c=>c.r==="DR").map(c=>c.n), PROMOS = CARDS.filter(c=>c.n>142).map(c=>c.n);
 const diff = () => Object.keys(S.owned).length, totc = () => Object.values(S.owned).reduce((a,b)=>a+b,0);
-const FAMS = [["gard","Tarsal","Gardevoir ex",[1,2,3],60],["fmelo","Mélo","Mélodelfe ex",[5,6,7],60],["fflab","Flabébé","Florges ex",[12,13,14],60],
-  ["frose","Rozbouton","Roserade",[20,21,22],40],["ffun","Funécire","Lugulabre ex",[29,30,31],60],["fzor","Zorua","Zoroark ex",[45,46],50],
-  ["farc","Arcko","Jungko",[61,62,63],40],["ecto","Fantominus","Ectoplasma ex",[70,71,72],60],["fnos","Nosferapti","Nostenfer",[73,74,75],40],
-  ["flix","Lixy","Luxray ex",[76,77,78],60],["frio","Riolu","Lucario ex",[84,85],50],["fwat","Wattouat","Pharamp",[42,43,44],40]];
+const FAMS = [["gard","Tarsal","Gardevoir ex",[1,2,3],30],["fmelo","Mélo","Mélodelfe ex",[5,6,7],30],["fflab","Flabébé","Florges ex",[12,13,14],30],
+  ["frose","Rozbouton","Roserade",[20,21,22],20],["ffun","Funécire","Lugulabre ex",[29,30,31],30],["fzor","Zorua","Zoroark ex",[45,46],25],
+  ["farc","Arcko","Jungko",[61,62,63],20],["ecto","Fantominus","Ectoplasma ex",[70,71,72],30],["fnos","Nosferapti","Nostenfer",[73,74,75],20],
+  ["flix","Lixy","Luxray ex",[76,77,78],30],["frio","Riolu","Lucario ex",[84,85],25],["fwat","Wattouat","Pharamp",[42,43,44],20]];
 const A = (c,id,ic,t,d,v,g,rew,title) => ({c,id,ic,t,d,v,g,rew,title});
 const ACHS = [
-  A("Boosters","o1","🎴","Premier booster","Ouvrir 1 booster",()=>S.opened,1,{pet:20}),
-  A("Boosters","o25","🎴","Habitué","Ouvrir 25 boosters",()=>S.opened,25,{sab:1}),
-  A("Boosters","o100","📦","Accro aux boosters","Ouvrir 100 boosters",()=>S.opened,100,{sab:3},"Accro aux boosters"),
-  A("Boosters","o250","📦","Déchireur","Ouvrir 250 boosters",()=>S.opened,250,{sab:5}),
-  A("Boosters","o500","👑","Légende du booster","Ouvrir 500 boosters",()=>S.opened,500,{pet:500},"Légende du booster"),
-  A("Boosters","god","🌌","Booster de minuit","Ouvrir un booster de minuit",()=>S.st.god,1,{pet:500},"Élu de minuit"),
-  A("Boosters","hi10","💎","Main chanceuse","Tirer 10 cartes ex ou mieux",()=>S.st.hi,10,{sab:2}),
-  A("Boosters","pk10","🌙","Noctambule","Faire 10 Choix de minuit",()=>S.st.picks,10,{pet:80}),
-  A("Boosters","pk50","🌙","Enfant de la nuit","Faire 50 Choix de minuit",()=>S.st.picks,50,{sab:3},"Enfant de la nuit"),
-  A("Collection","d10","📘","Premières pages","10 cartes différentes",diff,10,{pet:30}),
-  A("Collection","d50","📘","Collectionneur","50 cartes différentes",diff,50,{sab:2},"Collectionneur"),
-  A("Collection","d100","📚","Classeur bien rempli","100 cartes différentes",diff,100,{sab:4}),
-  A("Collection","p25","🌸","Un quart de lune","25 % de la série",()=>Math.floor(pct()),25,{sab:2}),
-  A("Collection","p50","🌗","Demi-lune","50 % de la série",()=>Math.floor(pct()),50,{sab:4}),
-  A("Collection","p75","🌖","Lune gibbeuse","75 % de la série",()=>Math.floor(pct()),75,{pet:500}),
-  A("Collection","p100","🌕","Pleine lune","Toute la série",()=>Math.floor(pct()),100,{pet:2000},"Maître de Lys de Minuit"),
-  A("Collection","c100","⚪","Toutes les communes","Toutes les cartes communes",()=>cnt("C"),POOLS.C.length,{sab:2}),
-  A("Collection","u100","🔷","Toutes les peu communes","Toutes les cartes peu communes",()=>cnt("U"),POOLS.U.length,{sab:3}),
-  A("Collection","r100","⭐","Toutes les rares","Toutes les cartes rares",()=>cnt("R"),POOLS.R.length,{pet:400}),
-  A("Collection","dr100","🎓","Tous les dresseurs","Tous les Dresseurs et objets",()=>DRS.filter(owned).length,DRS.length,{pet:200},"Grand dresseur"),
-  A("Collection","t500","🗃️","Gros classeur","500 cartes obtenues au total",totc,500,{sab:2}),
-  A("Raretés","ex","💜","Première ex","Obtenir une carte ex",()=>cnt("EX"),1,{pet:50}),
-  A("Raretés","esc","🤝","Première Escouade","Obtenir une Escouade",()=>cnt("ESC"),1,{pet:100}),
-  A("Raretés","ar","🎨","Première AR","Obtenir une AR",()=>cnt("AR"),1,{pet:100}),
-  A("Raretés","sp","🌟","Première SP","Obtenir une SP",()=>cnt("SP"),1,{sab:2}),
-  A("Raretés","gold","🥇","Première secrète gold","Obtenir une secrète gold",()=>cnt("GOLD"),1,{sab:5},"Chercheur d'or"),
-  A("Raretés","allex","💜","Chasseur d'ex","Toutes les cartes ex",()=>cnt("EX"),POOLS.EX.length,{pet:600},"Chasseur d'ex"),
-  A("Raretés","allesc","🤝","Esprit d'équipe","Toutes les Escouades",()=>cnt("ESC"),POOLS.ESC.length,{sab:5}),
-  A("Raretés","allar","🎨","Galeriste","Toutes les AR",()=>cnt("AR"),POOLS.AR.length,{sab:5},"Galeriste"),
-  A("Raretés","allsp","🌟","Star des SP","Toutes les SP",()=>cnt("SP"),POOLS.SP.length,{sab:5},"Star des SP"),
-  A("Raretés","allgold","👑","Légende dorée","Toutes les secrètes gold",()=>cnt("GOLD"),POOLS.GOLD.length,{pet:1500},"Légende dorée"),
-  A("Raretés","pr1","🎟️","Première promo","Obtenir une carte promo",()=>PROMOS.filter(owned).length,1,{pet:50}),
-  A("Raretés","pr4","🎟️","Toutes les promos","Obtenir les 4 promos",()=>PROMOS.filter(owned).length,PROMOS.length,{pet:200}),
+  A("Boosters","o1","🎴","Premier booster","Ouvrir 1 booster",()=>S.opened,1,{pet:10}),
+  A("Boosters","o25","🎴","Habitué","Ouvrir 25 boosters",()=>S.opened,25,{pet:40}),
+  A("Boosters","o100","📦","Accro aux boosters","Ouvrir 100 boosters",()=>S.opened,100,{sab:1},"Accro aux boosters"),
+  A("Boosters","o250","📦","Déchireur","Ouvrir 250 boosters",()=>S.opened,250,{sab:2}),
+  A("Boosters","o500","👑","Légende du booster","Ouvrir 500 boosters",()=>S.opened,500,{sab:3},"Légende du booster"),
+  A("Boosters","god","🌌","Booster de minuit","Ouvrir un booster de minuit",()=>S.st.god,1,{pet:150},"Élu de minuit"),
+  A("Boosters","hi10","💎","Main chanceuse","Tirer 10 cartes ex ou mieux",()=>S.st.hi,10,{pet:60}),
+  A("Boosters","pk10","🌙","Noctambule","Faire 10 Choix de minuit",()=>S.st.picks,10,{pet:40}),
+  A("Boosters","pk50","🌙","Enfant de la nuit","Faire 50 Choix de minuit",()=>S.st.picks,50,{sab:1},"Enfant de la nuit"),
+  A("Collection","d10","📘","Premières pages","10 cartes différentes",diff,10,{pet:20}),
+  A("Collection","d50","📘","Collectionneur","50 cartes différentes",diff,50,{pet:80},"Collectionneur"),
+  A("Collection","d100","📚","Classeur bien rempli","100 cartes différentes",diff,100,{sab:1}),
+  A("Collection","p25","🌸","Un quart de lune","25 % de la série",()=>Math.floor(pct()),25,{pet:100}),
+  A("Collection","p50","🌗","Demi-lune","50 % de la série",()=>Math.floor(pct()),50,{sab:1}),
+  A("Collection","p75","🌖","Lune gibbeuse","75 % de la série",()=>Math.floor(pct()),75,{sab:2}),
+  A("Collection","p100","🌕","Pleine lune","Toute la série",()=>Math.floor(pct()),100,{pet:500},"Maître de Lys de Minuit"),
+  A("Collection","c100","⚪","Toutes les communes","Toutes les cartes communes",()=>cnt("C"),POOLS.C.length,{pet:60}),
+  A("Collection","u100","🔷","Toutes les peu communes","Toutes les cartes peu communes",()=>cnt("U"),POOLS.U.length,{pet:100}),
+  A("Collection","r100","⭐","Toutes les rares","Toutes les cartes rares",()=>cnt("R"),POOLS.R.length,{pet:150}),
+  A("Collection","dr100","🎓","Tous les dresseurs","Tous les Dresseurs et objets",()=>DRS.filter(owned).length,DRS.length,{pet:100},"Grand dresseur"),
+  A("Collection","t500","🗃️","Gros classeur","500 cartes obtenues au total",totc,500,{sab:1}),
+  A("Raretés","ex","💜","Première ex","Obtenir une carte ex",()=>cnt("EX"),1,{pet:20}),
+  A("Raretés","esc","🤝","Première Escouade","Obtenir une Escouade",()=>cnt("ESC"),1,{pet:40}),
+  A("Raretés","ar","🎨","Première AR","Obtenir une AR",()=>cnt("AR"),1,{pet:40}),
+  A("Raretés","sp","🌟","Première SP","Obtenir une SP",()=>cnt("SP"),1,{pet:60}),
+  A("Raretés","gold","🥇","Première secrète gold","Obtenir une secrète gold",()=>cnt("GOLD"),1,{sab:1},"Chercheur d'or"),
+  A("Raretés","allex","💜","Chasseur d'ex","Toutes les cartes ex",()=>cnt("EX"),POOLS.EX.length,{pet:200},"Chasseur d'ex"),
+  A("Raretés","allesc","🤝","Esprit d'équipe","Toutes les Escouades",()=>cnt("ESC"),POOLS.ESC.length,{sab:1}),
+  A("Raretés","allar","🎨","Galeriste","Toutes les AR",()=>cnt("AR"),POOLS.AR.length,{sab:1},"Galeriste"),
+  A("Raretés","allsp","🌟","Star des SP","Toutes les SP",()=>cnt("SP"),POOLS.SP.length,{sab:1},"Star des SP"),
+  A("Raretés","allgold","👑","Légende dorée","Toutes les secrètes gold",()=>cnt("GOLD"),POOLS.GOLD.length,{sab:2},"Légende dorée"),
+  A("Raretés","pr1","🎟️","Première promo","Obtenir une carte promo",()=>PROMOS.filter(owned).length,1,{pet:20}),
+  A("Raretés","pr4","🎟️","Toutes les promos","Obtenir les 4 promos",()=>PROMOS.filter(owned).length,PROMOS.length,{pet:60}),
   ...FAMS.map(([id,a,b,ns,p])=>A("Familles",id,"🧬",`${a} → ${b}`,`Toute l'évolution de ${a}`,()=>ns.filter(owned).length,ns.length,{pet:p})),
-  A("Divers","prof","🪪","Se présenter","Choisir un pseudo et une photo",()=>(S.prof.name?1:0)+(AV?1:0),2,{pet:30}),
-  A("Divers","fav3","🖼️","Vitrine complète","Mettre 3 cartes en vitrine",()=>S.fav.length,3,{pet:30}),
-  A("Divers","b1","🛒","Premier achat","Acheter à la boutique",()=>S.st.buys,1,{pet:20}),
-  A("Divers","b10","🛍️","Client fidèle","10 achats à la boutique",()=>S.st.buys,10,{sab:2}),
-  A("Divers","v100","🔍","Admirateur","Regarder 100 cartes en grand",()=>S.st.views,100,{pet:50}),
-  A("Divers","j7","📅","Une semaine sous la lune","Jouer 7 jours",()=>S.st.days,7,{sab:2}),
-  A("Divers","j30","📅","Fidèle de la lune","Jouer 30 jours",()=>S.st.days,30,{sab:5},"Fidèle de la lune"),
-  A("Divers","pt5k","🌸","Cueilleur de pétales","Gagner 5 000 pétales au total",()=>S.st.petTot,5000,{sab:2}),
+  A("Divers","prof","🪪","Se présenter","Choisir un pseudo et une photo",()=>(S.prof.name?1:0)+(AV?1:0),2,{pet:15}),
+  A("Divers","fav3","🖼️","Vitrine complète","Mettre 3 cartes en vitrine",()=>S.fav.length,3,{pet:15}),
+  A("Divers","b1","🛒","Premier achat","Acheter à la boutique",()=>S.st.buys,1,{pet:10}),
+  A("Divers","b10","🛍️","Client fidèle","10 achats à la boutique",()=>S.st.buys,10,{pet:50}),
+  A("Divers","v100","🔍","Admirateur","Regarder 100 cartes en grand",()=>S.st.views,100,{pet:30}),
+  A("Divers","j7","📅","Une semaine sous la lune","Jouer 7 jours",()=>S.st.days,7,{sab:1}),
+  A("Divers","j30","📅","Fidèle de la lune","Jouer 30 jours",()=>S.st.days,30,{sab:2},"Fidèle de la lune"),
+  A("Divers","pt5k","🌸","Cueilleur de pétales","Gagner 5 000 pétales au total",()=>S.st.petTot,5000,{sab:1}),
 ];
 function pct(){ const b=CARDS.filter(c=>c.n<=142); return b.filter(c=>owned(c.n)).length/b.length*100; }
 function checkAch(){ ACHS.forEach(a=>{ if(!S.ach[a.id] && a.v()>=a.g){ S.ach[a.id]=Date.now(); give(a.rew); achQ.push(`Succès : ${a.t} !`); } }); if(!holdAch) flushAch(); }
@@ -863,7 +855,7 @@ function go(v){ curView=v; document.querySelectorAll("main .view").forEach(s=>s.
 document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>go(b.dataset.v));
 function renderAll(){ normalize(); renderRes(); renderBadges(); renderMe(); if(curView==="mis") renderMissions(); if(curView==="home") renderHome(); if(curView==="col") renderCol(); if(curView==="shop") renderShop(); if(curView==="prof") renderProf(); if(curView==="set") renderSet(); }
 let toastT=0; function toast(m){ const t=$("toast"); t.textContent=m; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2600); }
-setInterval(()=>{ const dk=S.day.k; normalize(); if(dk!==S.day.k) renderAll(); if(curView==="home") tick(); else { regen(); renderRes(); } if(curView==="mis") tickMissions(); if(curView==="shop") $("shopCd").textContent="Nouvelle sélection dans "+untilTxt(nextDay()); }, 1000);
+setInterval(()=>{ const dk=S.day.k; normalize(); if(dk!==S.day.k) renderAll(); if(curView==="home") tick(); else { regen(); renderRes(); } if(curView==="mis") tickMissions(); }, 1000);
 
 // ---------- Mises à jour (application de bureau) ----------
 if(window.ldm){

@@ -1,7 +1,7 @@
 {
   "name": "pack-opener",
   "productName": "Pack Opener",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Ouvre des boosters et complète tes collections de cartes.",
   "author": "H.Millier",
   "main": "main.js",
