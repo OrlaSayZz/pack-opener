@@ -859,13 +859,15 @@ setInterval(()=>{ const dk=S.day.k; normalize(); if(dk!==S.day.k) renderAll(); i
 
 // ---------- Mises à jour (application de bureau) ----------
 if(window.ldm){
-  window.ldm.onUpdate(st=>{
+  const onUpd = st=>{ if(!st) return;
     const b=$("upd"); b.hidden=false;
     if(st.state==="available"){ $("updTxt").textContent=`Nouvelle version ${st.version} : téléchargement…`; $("updBtn").hidden=true; }
     else if(st.state==="progress"){ $("updTxt").textContent=`Téléchargement de la mise à jour : ${st.percent} %`; }
     else if(st.state==="ready"){ $("updTxt").textContent=`Version ${st.version} prête.`; $("updBtn").hidden=false; }
     else if(st.state==="error"){ b.hidden=true; }
-  });
+  };
+  window.ldm.onUpdate(onUpd);
+  if(window.ldm.state) window.ldm.state().then(onUpd);
   $("updBtn").onclick=()=>window.ldm.installUpdate();
   window.ldm.version().then(v=>{ const p=document.createElement("p"); p.className="muted"; p.style.fontSize="12px"; p.textContent="Version "+v; $("v-set").appendChild(p); });
 }

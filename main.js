@@ -31,7 +31,10 @@ function createWindow() {
   });
 }
 
+// Dernier état connu, renvoyé au jeu s'il n'était pas encore chargé au moment de l'événement.
+let lastState = null;
 function send(state) {
+  lastState = state;
   if (win && !win.isDestroyed()) win.webContents.send("ldm:update", state);
 }
 
@@ -44,12 +47,20 @@ function setupUpdates() {
   autoUpdater.on("download-progress", (p) => send({ state: "progress", percent: Math.round(p.percent) }));
   autoUpdater.on("update-downloaded", (i) => send({ state: "ready", version: i.version }));
   autoUpdater.on("error", (e) => { log.error(e); send({ state: "error" }); });
-  // Vérifie au lancement, puis toutes les heures.
-  autoUpdater.checkForUpdates().catch((e) => log.error(e));
-  setInterval(() => autoUpdater.checkForUpdates().catch((e) => log.error(e)), 60 * 60 * 1000);
+  // Vérifie au lancement, toutes les 15 minutes, et quand on revient sur la fenêtre.
+  let lastCheck = 0;
+  const check = () => {
+    if (lastState && (lastState.state === "progress" || lastState.state === "ready")) return;
+    lastCheck = Date.now();
+    autoUpdater.checkForUpdates().catch((e) => log.error(e));
+  };
+  check();
+  setInterval(check, 15 * 60 * 1000);
+  app.on("browser-window-focus", () => { if (Date.now() - lastCheck > 5 * 60 * 1000) check(); });
 }
 
 ipcMain.handle("ldm:version", () => app.getVersion());
+ipcMain.handle("ldm:state", () => lastState);
 ipcMain.on("ldm:install", () => autoUpdater.quitAndInstall());
 
 // Une seule fenêtre du jeu à la fois.
