@@ -249,6 +249,22 @@ nav.tabs .nb{position:absolute;top:5px;left:calc(50% + 5px);min-width:17px;heigh
 .cosmos2{mix-blend-mode:color-dodge;opacity:.25;background:url(cosmos.svg) 0 0/260px 195px;background-position:calc(var(--mx) * -1.2) calc(var(--my) * -0.9);filter:hue-rotate(90deg)}
 .viewer .vclose,.ov .skip{z-index:5}
 .exglow{mix-blend-mode:color-dodge;opacity:calc(.18 + var(--o)*.32);background-image:radial-gradient(circle at var(--mx) var(--my),#ff7ab8 0%,#ffd36b 14%,#7dffcf 28%,#7ac8ff 42%,rgba(0,0,0,0) 62%)}
+.trid{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.trid b{font:900 20px ui-monospace,Consolas,monospace;letter-spacing:.12em;color:var(--gold)}
+.trbox{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.trbox h3{margin:0;font:800 13px var(--body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.trbox input{width:100%}
+.trsel{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center}
+.trsel img{width:64px;border-radius:5px;display:block}
+.trcode{font:900 clamp(16px,3vw,20px) ui-monospace,Consolas,monospace;letter-spacing:.06em;color:var(--gold);background:rgba(0,0,0,.3);border:1px dashed var(--gold);border-radius:10px;padding:10px;text-align:center;user-select:all;word-break:break-all}
+.trlog{display:flex;flex-direction:column;margin-top:6px}
+.trlog .row{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px}
+.trlog .row:last-child{border-bottom:0}
+.trlog img{width:34px;border-radius:3px;display:block}
+.trlog small{color:var(--muted);font-size:11.5px}
+.picker{position:fixed;inset:0;z-index:75;background:rgba(6,5,16,.95);backdrop-filter:blur(6px);display:flex;flex-direction:column}
+.picker .ph-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px max(16px,calc((100vw - 1100px)/2));border-bottom:1px solid var(--line);flex-wrap:wrap}
+.picker .ph-body{flex:1;overflow:auto;padding:16px max(16px,calc((100vw - 1100px)/2))}
 @media (max-width:440px){.brand{font-size:15px}.res{gap:5px}.pill{padding:4px 8px;font-size:12px}.topin{gap:8px}}
 @media (prefers-reduced-motion:reduce){.pack,.pack::after,.bigpack .glint,.rainbow,.rainbow2,.goldsheen,.goldband,.silverband,.spshine,.cosmos,.stack .aura.on{animation:none}}
 </style>
@@ -316,9 +332,27 @@ nav.tabs .nb{position:absolute;top:5px;left:calc(50% + 5px);min-width:17px;heigh
 
     <!-- BOUTIQUE -->
     <section class="view" id="v-shop" hidden>
-      <h1>Boutique</h1>
+      <h1>Échanges</h1>
+      <div class="card-box">
+        <div class="mhead"><h2>Échange de cartes</h2><span class="cd" id="trLeft"></span></div>
+        <div class="trid"><span class="muted">Ton ID d'échange</span><b id="myTid"></b><button class="btn sm ghost" id="copyTid">Copier</button></div>
+        <div class="grid2" style="margin:0">
+          <div class="trbox">
+            <h3>Envoyer une carte</h3>
+            <input type="text" id="trTo" placeholder="ID de ton ami" maxlength="6" autocomplete="off" spellcheck="false" style="text-transform:uppercase">
+            <div id="trSel"></div>
+            <div id="trOut"></div>
+          </div>
+          <div class="trbox">
+            <h3>Recevoir une carte</h3>
+            <form id="trForm" style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="trCode" placeholder="Code d'échange" autocomplete="off" spellcheck="false" style="flex:1;min-width:180px;text-transform:uppercase"><button class="btn sm" type="submit">Recevoir</button></form>
+            <p class="muted" id="trMsg" style="font-size:13px;margin:0"></p>
+          </div>
+        </div>
+        <div class="trlog" id="trLog"></div>
+      </div>
       <div class="grid2">
-        <div class="card-box"><h2>Échange</h2><div id="sabX"></div></div>
+        <div class="card-box"><h2>Sablier</h2><div id="sabX"></div></div>
         <div class="card-box">
           <h2>Code promo</h2>
           <form id="codeForm" style="display:flex;gap:8px;flex-wrap:wrap"><input type="text" id="codeIn" placeholder="Entre un code" autocomplete="off" style="flex:1;min-width:160px"><button class="btn sm" type="submit">Valider</button></form>
@@ -374,7 +408,7 @@ nav.tabs .nb{position:absolute;top:5px;left:calc(50% + 5px);min-width:17px;heigh
     <button data-v="home" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 7h12M6 17h12"/></svg>Boosters</button>
     <button data-v="mis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8l1.5 1.5L12 7M8 14l1.5 1.5L12 13M14 8.5h3M14 14.5h3"/></svg>Missions<span class="nb" id="nb-mis" hidden></span></button>
     <button data-v="col"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="8" height="7" rx="1.5"/><rect x="13" y="4" width="8" height="7" rx="1.5"/><rect x="3" y="13" width="8" height="7" rx="1.5"/><rect x="13" y="13" width="8" height="7" rx="1.5"/></svg>Classeur</button>
-    <button data-v="shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3c2 3 5 4 5 8a5 5 0 0 1-10 0c0-4 3-5 5-8z"/><path d="M12 21v-5"/></svg>Boutique</button>
+    <button data-v="shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg>Échanges</button>
     <button data-v="prof"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>Profil</button>
     <button data-v="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>Réglages</button>
   </div></nav>
@@ -409,6 +443,10 @@ nav.tabs .nb{position:absolute;top:5px;left:calc(50% + 5px);min-width:17px;heigh
 </div>
 
 <!-- Visionneuse -->
+<div class="picker" id="picker" hidden role="dialog" aria-modal="true" aria-label="Choisir une carte à envoyer">
+  <div class="ph-head"><h2 style="margin:0">Choisir une carte</h2><div class="chips" id="pkChips"></div><button class="btn sm ghost" id="pkClose">Fermer</button></div>
+  <div class="ph-body"><div class="cgrid" id="pkGrid"></div></div>
+</div>
 <div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Carte en grand">
   <button class="iconbtn vclose" id="vClose" aria-label="Fermer">✕</button>
   <div class="vstage" id="vstage"><div class="vcard" id="vcard"><img id="vimg" alt=""><div id="vfx"></div><div class="fx glare"></div></div></div>
@@ -718,7 +756,86 @@ document.addEventListener("keydown",e=>{ if(!$("viewer").hidden){ if(e.key==="Es
 })();
 
 // ---------- Boutique ----------
+
+// ---------- Échanges par code ----------
+const B32 = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", TR_MAX = 5, TR_SALT = "lys-minuit-echange-v1";
+const randId = k => Array.from({length:k},()=>B32[Math.floor(Math.random()*32)]).join("");
+function fnv(str){ let h=0x811c9dc5; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,0x01000193)>>>0; } return h; }
+function b32val(ch){ const i=B32.indexOf(ch); if(i<0) throw 0; return BigInt(i); }
+function idBits(id){ let v=0n; for(const ch of id) v=v*32n+b32val(ch); return v; }
+function trSign(n, to, nonce){ return fnv(TR_SALT+"|"+n+"|"+to+"|"+nonce) & 0x3FFFFF; }
+function trEncode(n, to){
+  const nonce = Math.floor(Math.random()*0x100000);
+  let v = (BigInt(n)<<72n) | (idBits(to)<<42n) | (BigInt(nonce)<<22n) | BigInt(trSign(n,to,nonce));
+  let out=""; for(let i=0;i<16;i++){ out = B32[Number(v & 31n)] + out; v >>= 5n; }
+  return {code: out.match(/.{4}/g).join("-"), nonce};
+}
+function trDecode(code){
+  const c = code.toUpperCase().replace(/[^A-Z0-9]/g,"");
+  if(c.length!==16) return null;
+  let v=0n; try{ for(const ch of c) v=v*32n+b32val(ch); }catch(e){ return null; }
+  const sig=Number(v & 0x3FFFFFn), nonce=Number((v>>22n) & 0xFFFFFn), toB=(v>>42n) & 0x3FFFFFFFn, n=Number(v>>72n);
+  let to=""; let t=toB; for(let i=0;i<6;i++){ to = B32[Number(t & 31n)] + to; t >>= 5n; }
+  if(!BY[n] || n>142 || trSign(n,to,nonce)!==sig) return null;
+  return {n, to, nonce};
+}
+let trPickN = null, pkFilter = "dup";
+function trState(){ if(!S.tid) S.tid=randId(6); if(!S.trade) S.trade={used:[],log:[],k:"",sent:0}; if(S.trade.k!==today()){ S.trade.k=today(); S.trade.sent=0; } return S.trade; }
+function renderTrade(){
+  const T=trState();
+  $("myTid").textContent = S.tid;
+  $("trLeft").textContent = `${TR_MAX-T.sent} envoi${TR_MAX-T.sent>1?"s":""} restant${TR_MAX-T.sent>1?"s":""} aujourd'hui`;
+  const c = trPickN && owned(trPickN) ? BY[trPickN] : null; if(!c) trPickN=null;
+  const to = $("trTo").value.trim().toUpperCase();
+  const okTo = /^[A-HJ-NP-Z2-9]{6}$/.test(to) && to!==S.tid;
+  const can = c && okTo && T.sent<TR_MAX;
+  $("trSel").innerHTML = c
+    ? `<div class="trsel"><img src="thumbs/${c.f}" alt=""><div><b>${c.name}</b><div class="muted" style="font-size:12px">${pad(c.n)} · ${label(c)} · ×${owned(c.n)}</div><button class="linkbtn" id="trChange" style="margin-top:6px">Changer</button></div></div>
+       <button class="btn${can?"":" ghost"}" id="trSend" ${can?"":"disabled"}>Envoyer et créer le code</button>`
+    : `<button class="btn ghost" id="trChoose">Choisir une carte</button>`;
+  if($("trChoose")) $("trChoose").onclick=openPicker;
+  if($("trChange")) $("trChange").onclick=openPicker;
+  if($("trSend")) $("trSend").onclick=trSend;
+  $("trLog").innerHTML = T.log.slice(0,8).map(e=>{ const c=BY[e.n]; const d=new Date(e.at).toLocaleDateString("fr-FR",{day:"numeric",month:"short"});
+    return `<div class="row"><img src="thumbs/${c.f}" alt=""><div><b>${e.t==="out"?"Envoyée":"Reçue"} : ${c.name}</b><br><small>${d}${e.t==="out"?" · pour "+e.to:""}</small></div>${e.t==="out"?`<button class="btn sm ghost" data-copy="${e.code}">Copier le code</button>`:""}</div>`; }).join("");
+  $("trLog").querySelectorAll("[data-copy]").forEach(b=>b.onclick=()=>copyTxt(b.dataset.copy,"Code copié"));
+}
+function copyTxt(t,msg){ (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast(msg),()=>toast(t)); }
+function trSend(){
+  const T=trState(), n=trPickN, to=$("trTo").value.trim().toUpperCase();
+  if(!n || !owned(n) || T.sent>=TR_MAX || !/^[A-HJ-NP-Z2-9]{6}$/.test(to) || to===S.tid) return;
+  const {code} = trEncode(n,to);
+  S.owned[n]--; if(S.owned[n]<=0){ delete S.owned[n]; S.fav=S.fav.filter(x=>x!==n); }
+  T.sent++; T.log.unshift({t:"out",n,to,code,at:Date.now()}); T.log=T.log.slice(0,30); S.st.trades=(S.st.trades||0)+1;
+  trPickN=null; save();
+  $("trOut").innerHTML = `<div class="trcode" id="trCodeOut">${code}</div><button class="btn sm" id="trCopy">Copier le code</button>`;
+  $("trCopy").onclick=()=>copyTxt(code,"Code copié");
+  renderTrade(); renderRes();
+}
+function openPicker(){
+  const list = CARDS.filter(c=>c.n<=142 && owned(c.n));
+  const draw = ()=>{
+    const l = pkFilter==="dup" ? list.filter(c=>owned(c.n)>1) : list;
+    $("pkChips").innerHTML = [["dup","Doublons"],["all","Toutes"]].map(([k,t])=>`<button class="chip" data-k="${k}" aria-pressed="${k===pkFilter}">${t}</button>`).join("");
+    $("pkChips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ pkFilter=b.dataset.k; draw(); });
+    $("pkGrid").innerHTML = l.length ? l.map(c=>`<button class="tile" data-n="${c.n}"><div class="ph"><img src="thumbs/${c.f}" alt="${c.name}" loading="lazy"><span class="cnt">×${owned(c.n)}</span></div><div class="meta"><b>${c.name}</b><span>${pad(c.n)}</span></div></button>`).join("") : `<p class="muted">Aucune carte ici.</p>`;
+    $("pkGrid").querySelectorAll(".tile").forEach(t=>t.onclick=()=>{ trPickN=Number(t.dataset.n); $("picker").hidden=true; $("trOut").innerHTML=""; renderTrade(); });
+  };
+  draw(); $("picker").hidden=false;
+}
+$("pkClose").onclick=()=>$("picker").hidden=true;
+$("trTo").addEventListener("input",renderTrade);
+$("copyTid").onclick=()=>copyTxt(trState() && S.tid,"ID copié");
+$("trForm").addEventListener("submit",e=>{ e.preventDefault();
+  const T=trState(), d=trDecode($("trCode").value), m=$("trMsg");
+  if(!d){ m.textContent="Code invalide."; return; }
+  if(d.to!==S.tid){ m.textContent="Ce code est destiné à un autre joueur."; return; }
+  const key=d.n+"-"+d.nonce; if(T.used.includes(key)){ m.textContent="Ce code a déjà été utilisé."; return; }
+  T.used.push(key); addCards([d.n]); T.log.unshift({t:"in",n:d.n,at:Date.now()}); T.log=T.log.slice(0,30); S.st.trades=(S.st.trades||0)+1;
+  save(); $("trCode").value=""; m.textContent=""; renderTrade(); renderRes(); openViewer([d.n],0); toast(`Échange reçu : ${BY[d.n].name} !`);
+});
 function renderShop(){
+  renderTrade();
   const can = !S.shop.sab && S.pet>=SAB_PRICE;
   $("sabX").innerHTML = `<div class="xrow"><span class="mi" aria-hidden="true">⏳</span><div><b>1 sablier</b><div class="muted" style="font-size:12.5px">1 par jour</div></div><button class="btn sm${can?"":" ghost"}" id="buySab" ${can?"":"disabled"}>${S.shop.sab?"Acheté ✓":"🌸 "+SAB_PRICE}</button></div>`;
   $("buySab").onclick=()=>{ if(S.shop.sab||S.pet<SAB_PRICE) return; S.pet-=SAB_PRICE; S.sab++; S.shop.sab=true; S.st.buys++; save(); toast("+1 sablier"); renderShop(); renderRes(); };
@@ -774,6 +891,8 @@ const ACHS = [
   ...FAMS.map(([id,a,b,ns,p])=>A("Familles",id,"🧬",`${a} → ${b}`,`Toute l'évolution de ${a}`,()=>ns.filter(owned).length,ns.length,{pet:p})),
   A("Divers","prof","🪪","Se présenter","Choisir un pseudo et une photo",()=>(S.prof.name?1:0)+(AV?1:0),2,{pet:15}),
   A("Divers","fav3","🖼️","Vitrine complète","Mettre 3 cartes en vitrine",()=>S.fav.length,3,{pet:15}),
+  A("Divers","tr1","🔁","Premier échange","Envoyer ou recevoir une carte",()=>S.st.trades||0,1,{pet:20}),
+  A("Divers","tr10","🤝","Grand échangeur","10 échanges",()=>S.st.trades||0,10,{pet:80}),
   A("Divers","b1","🛒","Premier achat","Acheter à la boutique",()=>S.st.buys,1,{pet:10}),
   A("Divers","b10","🛍️","Client fidèle","10 achats à la boutique",()=>S.st.buys,10,{pet:50}),
   A("Divers","v100","🔍","Admirateur","Regarder 100 cartes en grand",()=>S.st.views,100,{pet:30}),
@@ -809,7 +928,7 @@ function renderProf(){
   $("showcase").querySelectorAll("button.tile").forEach(t=>t.onclick=()=>openViewer(S.fav,S.fav.indexOf(Number(t.dataset.n))));
   $("showcase").querySelectorAll("button.slot").forEach(t=>t.onclick=()=>go("col"));
   $("pRar").innerHTML = ["C","U","R","EX","ESC","AR","SP","GOLD","PR"].map(r=>{ const all=r==="PR"?PROMOS:POOLS[r]; const o=all.filter(owned).length; return `<div class="rarrow"><span>${LABEL[r]}</span><div class="bar"><i style="width:${o/all.length*100}%"></i></div><b>${o} / ${all.length}</b></div>`; }).join("");
-  $("stats").innerHTML = [["Boosters ouverts",S.opened],["Cartes obtenues",totc()],["Cartes différentes",diff()],["Meilleure carte",S.best?BY[S.best].name:"—"],["Pétales gagnés",S.st.petTot],["Choix de minuit",S.st.picks],["Cartes ex ou mieux",S.st.hi],["Boosters de minuit",S.st.god],["Achats boutique",S.st.buys],["Jours de jeu",S.st.days]]
+  $("stats").innerHTML = [["Échanges",S.st.trades||0],["Boosters ouverts",S.opened],["Cartes obtenues",totc()],["Cartes différentes",diff()],["Meilleure carte",S.best?BY[S.best].name:"—"],["Pétales gagnés",S.st.petTot],["Choix de minuit",S.st.picks],["Cartes ex ou mieux",S.st.hi],["Boosters de minuit",S.st.god],["Achats boutique",S.st.buys],["Jours de jeu",S.st.days]]
     .map(([k,v])=>`<div class="st"><b title="${escH(v)}">${typeof v==="number"?v.toLocaleString("fr-FR"):escH(v)}</b><span>${k}</span></div>`).join("");
   renderAchs();
 }
