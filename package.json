@@ -1,0 +1,56 @@
+{
+  "name": "pack-opener",
+  "productName": "Pack Opener",
+  "version": "1.0.0",
+  "description": "Ouvre des boosters et complète tes collections de cartes.",
+  "author": "H.Millier",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never",
+    "release": "electron-builder --win --publish always"
+  },
+  "dependencies": {
+    "electron-log": "5.2.0",
+    "electron-updater": "6.3.9"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
+  },
+  "build": {
+    "appId": "fr.hmillier.packopener",
+    "productName": "Pack Opener",
+    "files": [
+      "main.js",
+      "preload.js",
+      "app/**/*"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "artifactName": "Pack-Opener-Setup-${version}.${ext}",
+      "shortcutName": "Pack Opener",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "OrlaSayZz",
+        "repo": "pack-opener",
+        "releaseType": "release"
+      }
+    ]
+  }
+}
