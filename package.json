@@ -6,6 +6,7 @@
   "author": "H.Millier",
   "main": "main.js",
   "private": true,
+  "homepage": "https://github.com/OrlaSayZz/pack-opener",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --win --publish never",
