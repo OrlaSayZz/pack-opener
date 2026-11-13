@@ -245,6 +245,8 @@ nav.tabs .nb{position:absolute;top:5px;left:calc(50% + 5px);min-width:17px;heigh
 .ach2 .f{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .ach2 .f .bar{flex:1;height:5px;min-width:40px}
 .ttag{font-size:10.5px;font-weight:800;color:var(--accent);border:1px solid var(--line);border-radius:99px;padding:1px 7px;white-space:nowrap}
+.cosmos{mix-blend-mode:color-dodge;opacity:.45;background:url(cosmos.svg) 0 0/400px 300px;background-position:calc(var(--mx) * 1.6) calc(var(--my) * 1.2);animation:none}
+.cosmos2{mix-blend-mode:color-dodge;opacity:.25;background:url(cosmos.svg) 0 0/260px 195px;background-position:calc(var(--mx) * -1.2) calc(var(--my) * -0.9);filter:hue-rotate(90deg)}
 @media (max-width:440px){.brand{font-size:15px}.res{gap:5px}.pill{padding:4px 8px;font-size:12px}.topin{gap:8px}}
 @media (prefers-reduced-motion:reduce){.pack,.pack::after,.bigpack .glint,.rainbow,.rainbow2,.goldsheen,.goldband,.silverband,.spshine,.cosmos,.stack .aura.on{animation:none}}
 </style>
@@ -678,7 +680,7 @@ function fxFor(c){
   if(r==="R") return foil(7.84);
   if(r==="DR") return c.rr==="R"?foil(8.98):"";
   if(r==="EX") return `<div class="fx rainbow" ${box({l:5.24,t:8.3,w:89.52,h:47.27})}></div><div class="fx rainbow2" ${box({l:5.24,t:8.3,w:89.52,h:47.27})}></div><div class="fx arglow" ${box({l:5.24,t:8.3,w:89.52,h:47.27})}></div>`;
-  if(r==="PR") return c.fx==="cosmos" ? "" : `<div class="fx arglow full"></div><div class="fx rainbow2 full" style="opacity:.10"></div>`;
+  if(r==="PR") return c.fx==="cosmos" ? `<div class="fx" ${box(WIN,"overflow:hidden")}><div class="fx full cosmos"></div><div class="fx full cosmos2"></div><div class="fx full rainbow" style="opacity:.14"></div></div>` : `<div class="fx arglow full"></div><div class="fx rainbow2 full" style="opacity:.10"></div>`;
   if(r==="SP") return `<div class="fx spshine" ${box({l:5.24,t:8.98,w:89.52,h:47.95})}></div><div class="fx goldband full" style="opacity:.6"></div>`;
   if(r==="ESC") return `<div class="fx rainbow full" style="opacity:.16"></div><div class="fx rainbow2 full" style="opacity:.14"></div><div class="fx arglow full"></div>`;
   if(r==="AR") return `<div class="fx arglow full"></div><div class="fx rainbow2 full" style="opacity:.10"></div>`;
@@ -691,7 +693,7 @@ function showV(){
   $("vimg").src="cards/"+c.f; $("vimg").alt=c.name; $("vfx").innerHTML=fxFor(c);
   $("vName").textContent=c.name; $("vInfo").textContent=`${c.n>142?"LDM · P"+String(c.n-142).padStart(2,"0"):"LDM · "+pad(c.n)+"/101"} · ${c.n>142?"Promo":label(c)} · possédée ×${owned(c.n)}`;
   const fav=S.fav.includes(c.n); $("vFav").setAttribute("aria-pressed",String(fav)); $("vFav").textContent=fav?"Retirer de la vitrine":"Mettre en vitrine";
-  $("vPrev").disabled = vNums.length<2; $("vNext").disabled = vNums.length<2;
+  $("vPrev").style.visibility = $("vNext").style.visibility = vNums.length<2 ? "hidden" : "visible";
 }
 $("vPrev").onclick=()=>{vIdx=(vIdx-1+vNums.length)%vNums.length;showV();};
 $("vNext").onclick=()=>{vIdx=(vIdx+1)%vNums.length;showV();};
