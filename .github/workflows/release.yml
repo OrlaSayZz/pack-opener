@@ -1,10 +1,12 @@
-# Construit le .exe et publie une nouvelle version quand tu pousses un tag "v1.2.3".
+# Construit le .exe et publie une nouvelle version à chaque fois que
+# le numéro "version" de package.json change sur la branche main.
 name: Publier une version
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: [main]
+    paths: ["package.json"]
+  workflow_dispatch:
 
 permissions:
   contents: write

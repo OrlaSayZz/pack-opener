@@ -20,49 +20,17 @@ Le dépôt doit être public : c'est ce qui permet à l'application de tes amis 
 
 Ouvre `package.json` avec le Bloc-notes et remplace `OrlaSayZz` par ton pseudo GitHub. Enregistre.
 
-## 3. Envoyer le projet sur GitHub
+## 4. Publier une nouvelle version (nouvelle série, corrections…)
 
-Dans le dossier du projet, fais clic droit → **Ouvrir dans le terminal** (ou « Git Bash Here »), puis tape ces lignes une par une (remplace `OrlaSayZz`) :
-
-```
-git init
-git add .
-git commit -m "Première version"
-git branch -M main
-git remote add origin https://github.com/OrlaSayZz/pack-opener.git
-git push -u origin main
-```
-
-La première fois, Git te demandera de te connecter à GitHub : une fenêtre s'ouvre, connecte-toi.
-
-## 4. Publier la première version
-
-```
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-GitHub construit alors le .exe tout seul (onglet **Actions** du dépôt, environ 5 à 10 minutes). Quand c'est fini, l'installateur `Pack-Opener-Setup-1.0.0.exe` apparaît dans l'onglet **Releases**. Envoie ce lien à tes amis.
-
-Au premier lancement, Windows peut afficher « Windows a protégé votre ordinateur » parce que l'application n'est pas signée. Clique sur **Informations complémentaires** puis **Exécuter quand même**.
-
-## 5. Publier une nouvelle version (nouvelle série, corrections…)
-
-1. Remplace le contenu du dossier `app` par la nouvelle version (celle que je te prépare).
+1. Remplace le contenu du dossier `app` par la nouvelle version.
 2. Dans `package.json`, augmente le numéro : `"version": "1.1.0"`.
-3. Envoie tout et crée le tag correspondant :
+3. Envoie le tout sur GitHub (branche `main`).
 
-```
-git add .
-git commit -m "Nouvelle série"
-git push
-git tag v1.1.0
-git push origin v1.1.0
-```
-
-Le numéro du tag doit être le même que dans `package.json`, avec un `v` devant.
+GitHub construit alors le .exe tout seul (onglet **Actions**, environ 5 à 10 minutes) et le publie dans l'onglet **Releases**.
 
 Chez toi et tes amis, l'application vérifie les mises à jour au lancement puis toutes les heures. Elle télécharge la nouvelle version, affiche « Version 1.1.0 prête » avec un bouton **Redémarrer**, et l'installe. Si on ne clique pas, elle s'installe toute seule à la fermeture du jeu.
+
+Au premier lancement, Windows peut afficher « Windows a protégé votre ordinateur » parce que l'application n'est pas signée. Clique sur **Informations complémentaires** puis **Exécuter quand même**.
 
 ## Bon à savoir
 
