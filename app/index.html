@@ -45,6 +45,11 @@ p{margin:0}
 /* accueil */
 .hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:24px;align-items:center;background:linear-gradient(160deg,#1f1846,#120f2b);border:1px solid var(--line);border-radius:22px;padding:22px}
 @media (max-width:720px){.hero{grid-template-columns:1fr;text-align:center}}
+.stabs{display:flex;gap:6px;flex-wrap:wrap}
+.stab{background:var(--bg2);border:1px solid var(--line);border-radius:10px;color:var(--dim);padding:7px 14px;font:600 12.5px var(--body);cursor:pointer;transition:all .2s}
+.stab:hover{border-color:var(--acc2);color:var(--fg)}
+.stab.on{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent;color:#fff;box-shadow:0 0 12px rgba(168,130,255,.35)}
+@media (max-width:720px){.stabs{justify-content:center}}
 .packwrap{display:flex;justify-content:center;perspective:900px}
 .pack{position:relative;width:min(220px,60vw);aspect-ratio:630/880;border-radius:16px;overflow:hidden;transform:rotateY(-12deg) rotateX(4deg);box-shadow:0 24px 50px rgba(0,0,0,.6),0 0 0 2px rgba(255,255,255,.08);animation:float 4s ease-in-out infinite;background:#1a0c22}
 .pack img{width:100%;height:100%;object-fit:cover;display:block}
@@ -363,9 +368,10 @@ nav.tabs button.bump{animation:hipop .5s;color:var(--gold)}
     <!-- ACCUEIL -->
     <section class="view" id="v-home">
       <div class="hero">
-        <div class="packwrap"><div class="pack" aria-hidden="true"><img src="cards/000_Dos.jpg" alt=""><div class="crimp t"></div><div class="crimp b"></div></div></div>
+        <div class="packwrap"><div class="pack" aria-hidden="true"><img id="packImg" src="cards/000_Dos.jpg" alt=""><div class="crimp t"></div><div class="crimp b"></div></div></div>
         <div class="stock">
-          <h1>Booster Lys de Minuit</h1>
+          <div class="stabs" id="serieTabs"><button class="stab on" data-s="ldm">Lys de Minuit</button><button class="stab" data-s="kanto">Origines de Kanto</button></div>
+          <h1 id="heroTitle">Booster Lys de Minuit</h1>
                     <div class="dots" id="dots" aria-label="Boosters en réserve"></div>
           <p>Prochain booster dans <span class="timer" id="timer">—</span></p>
           <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:inherit">
@@ -506,8 +512,8 @@ nav.tabs button.bump{animation:hipop .5s;color:var(--gold)}
 <div class="ov" id="ov" hidden role="dialog" aria-modal="true" aria-label="Ouverture du booster">
   <button class="btn sm ghost skip" id="skipBtn">Tout révéler</button>
   <div class="bigpack" id="bigpack">
-    <div class="lid"><img src="cards/000_Dos.jpg" alt=""></div>
-    <div class="body"><img src="cards/000_Dos.jpg" alt=""></div>
+    <div class="lid"><img id="lidImg" src="cards/000_Dos.jpg" alt=""></div>
+    <div class="body"><img id="bodyImg" src="cards/000_Dos.jpg" alt=""></div>
     <div class="tear" id="tear"></div>
     <div class="glint"></div>
   </div>
@@ -685,6 +691,9 @@ function renderHome(){
   $("pickBtn").textContent = S.day.pick ? "Déjà fait aujourd'hui" : "Faire le Choix de minuit";
   const left = PITY - S.pity;
   $("pityTxt").textContent = `Une ex ou mieux garantie dans ${left} booster${left>1?"s":""} au plus.`;
+  $("packImg").src = SR().back;
+  $("heroTitle").textContent = "Booster " + SR().name;
+  document.querySelectorAll("#serieTabs .stab").forEach(b=>b.classList.toggle("on", b.dataset.s===curSerie));
   renderLogin(); renderBadges(); tick();
 }
 function tick(){
@@ -777,6 +786,7 @@ function openBooster(){
   $("ov").hidden = false; document.body.style.overflow="hidden";
   $("summary").hidden = true; $("stack").hidden = true; $("counter").textContent="";
   const bp = $("bigpack"); bp.hidden=false; bp.classList.remove("open"); bp.classList.toggle("god", cur.god); if(cur.god) SFX.god();
+  $("lidImg").src = SR().back; $("bodyImg").src = SR().back;
   $("tear").style.width="0";
   $("skipBtn").hidden=false;
   if(S.fast) setTimeout(()=>tearDone(true), 200);
@@ -1283,6 +1293,7 @@ if(window.ldm){
 
 // ---------- Sélecteur de série ----------
 $("serieSel").onchange = e => { curSerie = e.target.value; renderAll(); };
+document.querySelectorAll("#serieTabs .stab").forEach(b=>b.onclick=()=>{ curSerie=b.dataset.s; $("serieSel").value=curSerie; renderAll(); });
 
 // ---------- Démarrage ----------
 (function boot(){
