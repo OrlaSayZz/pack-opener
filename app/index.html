@@ -571,7 +571,7 @@ const COST = {C:150,U:300,R:800,EX:2000,ESC:4000,AR:4000,SP:6000};
 const SHOPW = [["C",30],["U",30],["R",22],["EX",10],["ESC",3],["AR",3],["SP",2]], SHOP_N = 6, SAB_PRICE = 500;
 const ORDER = ["C","U","R","EX","ESC","SP","AR","GOLD","PR"];
 const CODES = {"LUNE-AQUALI":143,"FLAMME-COSMOS":144,"NEIGE-FRISONILLE":145,"SOLEIL-PYRAX":146};
-const WIN = {l:4.6,t:7.84,w:90.79,h:45.9};
+const WIN = {l:4.29,t:9.32,w:91.43,h:44.55};
 const $ = id => document.getElementById(id);
 const pad = n => String(n).padStart(3,"0");
 const today = () => { const d=new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); };
@@ -886,15 +886,15 @@ $("colSort").onchange=e=>{ colSort=e.target.value; renderCol(); };
 
 // ---------- Visionneuse ----------
 let vNums=[], flipped=false;
-function holeClip(t,h){const l=4.6,r=95.4,b=t+h;return `clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,${l}% ${t}%,${l}% ${b}%,${r}% ${b}%,${r}% ${t}%,${l}% ${t}%)`;}
+function holeClip(t,h){const l=4.29,r=95.71,b=t+h;return `clip-path:polygon(evenodd,0 0,100% 0,100% 100%,0 100%,0 0,${l}% ${t}%,${l}% ${b}%,${r}% ${b}%,${r}% ${t}%,${l}% ${t}%)`;}
 function fxFor(c){
   const r=c.r, box=(w,x="")=>`style="left:${w.l}%;top:${w.t}%;width:${w.w}%;height:${w.h}%;${x}"`;
-  const foil=t=>`<div class="fx full" style="${holeClip(t,45.9)}"><div class="fx full rainbow" style="opacity:.12"></div><div class="fx full silverband"></div></div>`;
-  if(r==="R") return foil(7.84);
-  if(r==="DR") return c.rr==="R"?foil(8.98):"";
-  if(r==="EX") return `<div class="fx" ${box({l:5.24,t:8.3,w:89.52,h:47.27},"overflow:hidden")}><div class="fx full rainbow" style="opacity:.12"></div><div class="fx full rainbow2" style="opacity:.55"></div><div class="fx full exglow"></div><div class="fx full silverband" style="opacity:.85"></div></div>`;
+  const foil=t=>`<div class="fx full" style="${holeClip(t,44.55)}"><div class="fx full rainbow" style="opacity:.12"></div><div class="fx full silverband"></div></div>`;
+  if(r==="R") return foil(9.32);
+  if(r==="DR") return c.rr==="R"?foil(9.32):"";
+  if(r==="EX") return `<div class="fx" ${box(WIN,"overflow:hidden")}><div class="fx full rainbow" style="opacity:.12"></div><div class="fx full rainbow2" style="opacity:.55"></div><div class="fx full exglow"></div><div class="fx full silverband" style="opacity:.85"></div></div>`;
   if(r==="PR") return c.fx==="cosmos" ? `<div class="fx" ${box(WIN,"overflow:hidden")}><div class="fx full cosmos"></div><div class="fx full cosmos2"></div><div class="fx full rainbow" style="opacity:.14"></div></div>` : `<div class="fx arglow full"></div><div class="fx rainbow2 full" style="opacity:.10"></div>`;
-  if(r==="SP") return `<div class="fx spshine" ${box({l:5.24,t:8.98,w:89.52,h:47.95})}></div><div class="fx goldband full" style="opacity:.6"></div>`;
+  if(r==="SP") return `<div class="fx spshine" ${box(WIN)}></div><div class="fx goldband full" style="opacity:.6"></div>`;
   if(r==="ESC") return `<div class="fx rainbow full" style="opacity:.16"></div><div class="fx rainbow2 full" style="opacity:.14"></div><div class="fx arglow full"></div>`;
   if(r==="AR") return `<div class="fx arglow full"></div><div class="fx rainbow2 full" style="opacity:.10"></div>`;
   if(r==="GOLD") return `<div class="fx goldsheen full"></div><div class="fx goldband full"></div>`;
